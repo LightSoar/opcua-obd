@@ -1,0 +1,34 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta charset="UTF-8"> 
+  <title>OBD Dashboard</title>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/index.css') }}">
+  <script src="{{url_for('static', filename='js/index.js')}}"></script>
+
+</head>
+<body>
+
+
+<h1 id="time"></h1>
+
+<table>
+  <caption>OBD Dashboard</caption>
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>RPM</td>
+    <td id="rpm"></td>
+  </tr>
+  <tr>
+    <td>Speed</td>
+    <td id="speed"></td>
+  </tr>
+</table> 
+
+
+</body>
+</html>
