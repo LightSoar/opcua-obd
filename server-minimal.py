@@ -4,9 +4,12 @@ import time
 from opcua import ua, Server
 import obd
 
+from configparser import ConfigParser
 
 if __name__ == "__main__":
 
+    config = ConfigParser()
+    config.read('pids.conf')
 
     # setup our server
     server = Server()
@@ -21,8 +24,14 @@ if __name__ == "__main__":
 
     # populating our address space
     myobj = objects.add_object(idx, "MyCar")
-    speed = myobj.add_variable(idx, "SPEED", 0)
-    rpm = myobj.add_variable(idx, "RPM", 0)
+
+    opc_vars = {}
+    for route in config['Routes'].keys():
+        pid = config['Routes'][route] # "SPEED", "RPM", etc.
+        if obd.commands.has_name(pid):
+            opc_vars[obd.commands[pid]] = myobj.add_variable(idx, pid, 0)
+    #speed = myobj.add_variable(idx, "SPEED", 0)
+    #rpm = myobj.add_variable(idx, "RPM", 0)
     #intake_pressure = myobj.add_variable(idx, "INTAKE_PRESSURE", 0)
     #maf = myobj.add_variable(idx, "MAF", 0)
     #cer = myobj.add_variable(idx, "COMMANDED_EQUIV_RATIO", 0)
@@ -42,10 +51,10 @@ if __name__ == "__main__":
 
             #print("==>", obdConn.query(obd.commands.SPEED).value.magnitude)
             if obdConn.is_connected():
-                obdSpeed = obdConn.query(obd.commands.SPEED).value.magnitude
-                obdRPM = obdConn.query(obd.commands.RPM).value.magnitude
-            speed.set_value(obdSpeed)
-            rpm.set_value(obdRPM)
+                for obd_command in opc_vars:
+                    value = obdConn.query(obd_command).value.magnitude
+                    opc_vars[obd_command].set_value(value)
+
     finally:
         #close connection, remove subcsriptions, etc
         server.stop()
